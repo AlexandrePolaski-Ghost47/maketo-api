@@ -5,6 +5,8 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/maketo}
     username: ${DB_USERNAME:maketo_user}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:5}   # ← nouveau : peu de connexions = moins de RAM
   jpa:
     open-in-view: false
     hibernate:
@@ -27,7 +29,8 @@ spring:
       max-request-size: 20MB
 
 server:
-  port: 8080
+  port: ${PORT:8080}                    # ← nouveau : Railway fournit PORT
+  forward-headers-strategy: framework   # ← nouveau : derrière le proxy Railway/Vercel (vrai HTTPS, vraie IP)
   error:
     include-message: never
     include-stacktrace: never
@@ -68,7 +71,7 @@ maketo:
     paiements-cron: "0 */2 * * * *"    # rattrapage des recharges en attente
   paiement:
     fournisseur: ${PAIEMENT_FOURNISSEUR:simulation}   # simulation | ctpay
-    callback-url: ${PAIEMENT_CALLBACK_URL:}           # ex. https://api.maketo.cm/api/paiements/callback/ctpay
+    callback-url: ${PAIEMENT_CALLBACK_URL:}           # ex. https://xxx.up.railway.app/api/paiements/callback/ctpay
     ctpay:
       url-base: ${CTPAY_URL:https://gateway-prod.connecttechnology.io}
       token: ${CTPAY_TOKEN:}
