@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: maketo-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/maketo}
+    username: ${DB_USERNAME:maketo_user}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate          # Flyway gère le schéma, Hibernate vérifie seulement
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 20   # charge photos/catégories/vendeurs par lots (évite N+1 dans les listes)
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    web:
+      pageable:
+        max-page-size: 50
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+maketo:
+  security:
+    jwt-secret: ${JWT_SECRET}
+    access-token-minutes: 15
+    refresh-token-days: 7
+    cookie-secure: ${COOKIE_SECURE:true}
+    cookie-same-site: ${COOKIE_SAME_SITE:Strict}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  admin:
+    telephone: ${ADMIN_TELEPHONE:}
+    mot-de-passe: ${ADMIN_MOT_DE_PASSE:}
+    nom: ${ADMIN_NOM:Admin}
+    prenom: ${ADMIN_PRENOM:Maketo}
+  stockage:
+    type: ${STOCKAGE_TYPE:local}          # local | cloudinary
+    local:
+      dossier: ${STOCKAGE_DOSSIER:./uploads}
+      url-base: ${STOCKAGE_URL_BASE:http://localhost:8080}
+    cloudinary:
+      cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+      api-key: ${CLOUDINARY_API_KEY:}
+      api-secret: ${CLOUDINARY_API_SECRET:}
+      dossier: maketo
+  taches:
+    expiration-cron: "0 0 * * * *"     # toutes les heures
+    nettoyage-cron: "0 0 3 * * *"      # chaque nuit à 3 h
+    paiements-cron: "0 */2 * * * *"    # rattrapage des recharges en attente
+  paiement:
+    fournisseur: ${PAIEMENT_FOURNISSEUR:simulation}   # simulation | ctpay
+    callback-url: ${PAIEMENT_CALLBACK_URL:}           # ex. https://api.maketo.cm/api/paiements/callback/ctpay
+    ctpay:
+      url-base: ${CTPAY_URL:https://gateway-prod.connecttechnology.io}
+      token: ${CTPAY_TOKEN:}
+      prefixe-telephone: ${CTPAY_PREFIXE_TELEPHONE:}  # vide : numéros envoyés au format 6XXXXXXXX

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: maketo-db
+    environment:
+      POSTGRES_DB: maketo
+      POSTGRES_USER: maketo_user
+      POSTGRES_PASSWORD: maketo_pass_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - maketo-data:/var/lib/postgresql/data
+
+volumes:
+  maketo-data:
